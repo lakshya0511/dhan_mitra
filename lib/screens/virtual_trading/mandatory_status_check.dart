@@ -39,11 +39,19 @@ class _MandatoryStatusPageState extends State<MandatoryStatusPage> {
       return;
     }
 
-    await userRef.update({
-      'trading.unlocked': true,
-      'trading.unlockedAt': FieldValue.serverTimestamp(),
-      'wallet.balance': 10000, // initial virtual money
+    await FirebaseFirestore.instance.runTransaction((txn) async {
+      final freshSnap = await txn.get(userRef);
+      final freshData = freshSnap.data() ?? {};
+
+      if (freshData['trading']?['unlocked'] == true) return;
+
+      txn.update(userRef, {
+        'trading.unlocked': true,
+        'trading.unlockedAt': FieldValue.serverTimestamp(),
+        'wallet.balance': FieldValue.increment(10000),
+      });
     });
+
 
     if (!mounted) return;
 

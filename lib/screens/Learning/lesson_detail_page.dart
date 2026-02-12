@@ -102,10 +102,16 @@ class _LessonDetailPageState extends State<LessonDetailPage> {
 
     final video = widget.lessonData['video'];
     final script = List<String>.from(video['script']);
+    final title = widget.lessonData['title'];
 
     return Scaffold(
+      backgroundColor: cs.surface,
       appBar: AppBar(
-        title: Text(widget.lessonData['title']),
+        elevation: 0,
+        backgroundColor: cs.surface,
+        foregroundColor: cs.onSurface,
+        title: Text("Lesson View", style: theme.textTheme.titleMedium),
+        centerTitle: true,
       ),
       body: StreamBuilder<DocumentSnapshot>(
         stream: FirebaseFirestore.instance
@@ -122,8 +128,10 @@ class _LessonDetailPageState extends State<LessonDetailPage> {
           final videoProgress = lesson?['video'];
 
           final bool lessonCompleted = lesson?['score'] != null;
-          final int backendWatched =
-          (videoProgress?['watchedSeconds'] ?? 0) as int;
+          final int backendWatched = (videoProgress?['watchedSeconds'] ?? 0) as int;
+
+          // UI calculation only
+          double progressPercent = (totalSeconds > 0) ? (watchedSeconds / totalSeconds).clamp(0.0, 1.0) : 0.0;
 
           return YoutubePlayerBuilder(
             player: YoutubePlayer(
@@ -131,6 +139,7 @@ class _LessonDetailPageState extends State<LessonDetailPage> {
               progressColors: ProgressBarColors(
                 playedColor: cs.primary,
                 handleColor: cs.primary,
+                bufferedColor: cs.primaryContainer,
               ),
               onReady: () {
                 if (_playerReady) return;
@@ -146,112 +155,147 @@ class _LessonDetailPageState extends State<LessonDetailPage> {
               },
             ),
             builder: (context, player) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 16),
-
-                    // VIDEO
-                    Container(
-                      clipBehavior: Clip.antiAlias,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: cs.outlineVariant),
-                      ),
-                      child: player,
-                    ),
-
-                    const SizedBox(height: 24),
-
-                    // SCRIPT HEADER
-                    Row(
-                      children: [
-                        Icon(Icons.menu_book_rounded,
-                            size: 20, color: cs.secondary),
-                        const SizedBox(width: 8),
-                        Text(
-                          "Lesson Script",
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+              return Column(
+                children: [
+                  // VIDEO SECTION
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.black,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
                         ),
                       ],
                     ),
-                    const Divider(),
+                    child: player,
+                  ),
 
-                    // SCRIPT
-                    Expanded(
-                      child: ListView.builder(
-                        itemCount: script.length,
-                        itemBuilder: (_, i) => Padding(
-                          padding: const EdgeInsets.only(bottom: 16),
-                          child: Text(
-                            script[i],
-                            style: theme.textTheme.bodyLarge?.copyWith(
-                              height: 1.6,
-                              color: cs.onSurface.withOpacity(0.85),
+                  // CONTENT SECTION
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            title,
+                            style: theme.textTheme.headlineSmall?.copyWith(
+                              fontWeight: FontWeight.w800,
+                              color: cs.onSurface,
                             ),
                           ),
-                        ),
-                      ),
-                    ),
+                          const SizedBox(height: 24),
 
-                    const SizedBox(height: 16),
+                          // SCRIPT HEADER
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: cs.secondaryContainer,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Icon(Icons.menu_book_rounded, size: 18, color: cs.onSecondaryContainer),
+                              ),
+                              const SizedBox(width: 12),
+                              Text(
+                                "Lesson Script",
+                                style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
 
-                    // ACTIONS
-                    SizedBox(
-                      width: double.infinity,
-                      height: 54,
-                      child: FilledButton(
-                        onPressed: lessonCompleted
-                            ? null
-                            : () {
-                          _stopVideo();
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => QuizPage(
-                                lessonId: widget.lessonId,
-                                lessonData: widget.lessonData,
+                          const SizedBox(height: 16),
+
+                          // SCRIPT LIST
+                          Expanded(
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12),
+                              decoration: BoxDecoration(
+                                color: cs.surfaceVariant.withOpacity(0.3),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: ListView.builder(
+                                padding: const EdgeInsets.symmetric(vertical: 16),
+                                itemCount: script.length,
+                                itemBuilder: (_, i) => Padding(
+                                  padding: const EdgeInsets.only(bottom: 16),
+                                  child: Text(
+                                    script[i],
+                                    style: theme.textTheme.bodyLarge?.copyWith(
+                                      height: 1.6,
+                                      color: cs.onSurfaceVariant,
+                                    ),
+                                  ),
+                                ),
                               ),
                             ),
-                          );
-                        },
-                        child: Text(
-                          lessonCompleted
-                              ? "Lesson Completed"
-                              : "Start Practice Quiz",
-                        ),
+                          ),
+
+                          // ACTION BUTTONS
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 20),
+                            child: Column(
+                              children: [
+                                SizedBox(
+                                  width: double.infinity,
+                                  height: 56,
+                                  child: FilledButton(
+                                    style: FilledButton.styleFrom(
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                    ),
+                                    onPressed: lessonCompleted ? null : () {
+                                      _stopVideo();
+                                      Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) => QuizPage(
+                                            lessonId: widget.lessonId,
+                                            lessonData: widget.lessonData,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    child: Text(
+                                      lessonCompleted ? "Lesson Completed" : "Start Practice Quiz",
+                                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                ),
+                                if (lessonCompleted) ...[
+                                  const SizedBox(height: 12),
+                                  SizedBox(
+                                    width: double.infinity,
+                                    height: 56,
+                                    child: OutlinedButton.icon(
+                                      style: OutlinedButton.styleFrom(
+                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                        side: BorderSide(color: cs.primary),
+                                      ),
+                                      icon: const Icon(Icons.analytics_outlined),
+                                      label: const Text("View Performance Feedback"),
+                                      onPressed: () {
+                                        _stopVideo();
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (_) => FeedbackPage(lessonId: widget.lessonId),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-
-                    if (lessonCompleted) ...[
-                      const SizedBox(height: 12),
-                      SizedBox(
-                        width: double.infinity,
-                        height: 50,
-                        child: OutlinedButton.icon(
-                          icon: const Icon(Icons.analytics_outlined),
-                          label: const Text("View Performance Feedback"),
-                          onPressed: () {
-                            _stopVideo();
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) =>
-                                    FeedbackPage(lessonId: widget.lessonId),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ],
-
-                    const SizedBox(height: 24),
-                  ],
-                ),
+                  ),
+                ],
               );
             },
           );

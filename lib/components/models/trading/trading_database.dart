@@ -14,47 +14,6 @@ class TradingService {
   // ================= AUTO UNLOCK TRADING =================
   // Call this once on dashboard load / app start
 
-  Future<void> autoUnlockTradingIfEligible() async {
-    await _db.runTransaction((txn) async {
-      final snap = await txn.get(_userRef);
-      if (!snap.exists) return;
-
-      final data = snap.data() as Map<String, dynamic>;
-
-      // Already unlocked → stop
-      if (data['trading']?['unlocked'] == true) return;
-
-      final Map<String, dynamic> lessonProgress =
-      Map<String, dynamic>.from(data['lessonProgress'] ?? {});
-
-      if (lessonProgress.isEmpty) return;
-
-      // ✅ Check all mandatory lessons completed
-      final bool allMandatoryCompleted =
-      lessonProgress.values.every((lesson) {
-        if (lesson['isMandatory'] == true) {
-          return lesson['completedAt'] != null;
-        }
-        return true;
-      });
-
-      if (!allMandatoryCompleted) return;
-
-      final wallet = data['wallet'] as Map<String, dynamic>;
-      final double currentBalance =
-          (wallet['balance'] as num?)?.toDouble() ?? 0.0;
-
-
-      txn.update(_userRef, {
-        'trading': {
-          'unlocked': true,
-          'unlockedAt': FieldValue.serverTimestamp(),
-        },
-        'wallet.balance': currentBalance + 10000,
-        'updatedAt': FieldValue.serverTimestamp(),
-      });
-    });
-  }
 
   // ================= BUY STOCK =================
 
