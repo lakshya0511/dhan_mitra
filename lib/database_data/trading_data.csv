@@ -1,0 +1,11 @@
+symbol,name,sector,price,change,changePercent
+RELIANCE,Reliance Industries,Energy,2500,0,0
+TCS,Tata Consultancy Services,IT,3800,0,0
+INFY,Infosys,IT,1450,0,0
+HDFCBANK,HDFC Bank,Banking,1650,0,0
+ICICIBANK,ICICI Bank,Banking,1050,0,0
+SBIN,State Bank of India,Banking,620,0,0
+ITC,ITC Limited,FMCG,430,0,0
+LT,Larsen & Toubro,Infrastructure,3400,0,0
+BHARTIARTL,Bharti Airtel,Telecom,1150,0,0
+ASIANPAINT,Asian Paints,Consumer,2950,0,0

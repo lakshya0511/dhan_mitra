@@ -1,0 +1,5 @@
+id,title,description,costPoints,paisaReward,active
+reward_1,₹50 Paisa Bonus,Get ₹50 virtual money,25,5000,true
+reward_2,₹100 Paisa Bonus,Get ₹100 virtual money,50,10000,true
+reward_3,₹250 Paisa Bonus,Get ₹250 virtual money,120,25000,true
+reward_4,₹500 Paisa Bonus,Get ₹500 virtual money,200,50000,true

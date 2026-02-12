@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "240014863423",
+    "project_id": "dhanmitra-26",
+    "storage_bucket": "dhanmitra-26.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:240014863423:android:1f78a728d17b876b291c8a",
+        "android_client_info": {
+          "package_name": "com.example.dhan_mitra"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCB5RxQO8iw-BYvVgSHzWrLPAFV4zbEfno"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
