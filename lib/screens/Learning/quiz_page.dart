@@ -32,6 +32,10 @@ class _QuizPageState extends State<QuizPage> {
   Map<String, dynamic>? selectedDecisionData;
   String? selectedReflectionOption;
 
+  /// 🆕 Saved progress
+  Map<String, dynamic> savedAnswers = {};
+  Map<String, dynamic> savedReflections = {};
+
   @override
   void initState() {
     super.initState();
@@ -45,15 +49,55 @@ class _QuizPageState extends State<QuizPage> {
           (sum, q) => sum + ((q['weight'] as num?)?.toInt() ?? 0),
     );
 
-    _checkCompletion();
+    _initQuiz();
+  }
+
+  // ================= INIT QUIZ =================
+
+  Future<void> _initQuiz() async {
+    await _checkCompletion();
+    await _loadProgress(); // 🔥 NEW
   }
 
   Future<void> _checkCompletion() async {
-    final completed = await _learning.isLessonCompleted(widget.lessonId);
+    final completed =
+    await _learning.isLessonCompleted(widget.lessonId);
     if (completed && mounted) {
       setState(() => lessonCompleted = true);
     }
   }
+
+  /// 🆕 LOAD SAVED QUIZ PROGRESS
+  Future<void> _loadProgress() async {
+    final progress =
+    await _learning.getLessonQuizProgress(widget.lessonId);
+
+    savedAnswers =
+    Map<String, dynamic>.from(progress['answers'] ?? {});
+    savedReflections =
+    Map<String, dynamic>.from(progress['reflections'] ?? {});
+
+    int nextIndex = 0;
+
+    for (int i = 0; i < questions.length; i++) {
+      final qid = questions[i]['id'];
+      if (!savedAnswers.containsKey(qid)) {
+        nextIndex = i;
+        break;
+      }
+      nextIndex = i + 1;
+    }
+
+    if (mounted) {
+      setState(() {
+        questionIndex = nextIndex >= questions.length
+            ? questions.length - 1
+            : nextIndex;
+      });
+    }
+  }
+
+  // ================= BUILD =================
 
   @override
   Widget build(BuildContext context) {
@@ -99,6 +143,8 @@ class _QuizPageState extends State<QuizPage> {
     );
   }
 
+  // ================= QUESTION UI =================
+
   Widget _buildQuestion() {
     final q = questions[questionIndex];
     final theme = Theme.of(context);
@@ -107,12 +153,21 @@ class _QuizPageState extends State<QuizPage> {
     final decisionOptions = Map<String, dynamic>.from(q['options'] ?? {});
     final reflection = q['reflection'];
 
+    final qid = q['id'];
+
+    /// 🔥 AUTO RESTORE SAVED OPTIONS
+    selectedDecisionOption ??=
+    savedAnswers[qid]?['selectedOption'];
+    selectedReflectionOption ??=
+    savedReflections[qid]?['userAnswer'];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           q['question'] ?? "",
-          style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+          style: theme.textTheme.titleLarge
+              ?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 20),
 
@@ -135,17 +190,15 @@ class _QuizPageState extends State<QuizPage> {
                     ),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  color: selected ? cs.primaryContainer.withOpacity(0.05) : null,
+                  color: selected
+                      ? cs.primaryContainer.withOpacity(0.05)
+                      : null,
                   child: ListTile(
-                    title: Text(
-                      option['text'] ?? "",
-                      style: theme.textTheme.bodyLarge?.copyWith(
-                        fontWeight: selected ? FontWeight.bold : FontWeight.normal,
-                      ),
-                    ),
+                    title: Text(option['text'] ?? ""),
                     leading: Icon(
-                      selected ? Icons.radio_button_checked : Icons.radio_button_off,
-                      color: selected ? cs.primary : cs.onSurfaceVariant,
+                      selected
+                          ? Icons.radio_button_checked
+                          : Icons.radio_button_off,
                     ),
                     onTap: () {
                       setState(() {
@@ -162,14 +215,12 @@ class _QuizPageState extends State<QuizPage> {
                 const Divider(),
                 const SizedBox(height: 20),
 
-                Text(
-                  reflection['question'] ?? "",
-                  style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-                ),
+                Text(reflection['question'] ?? ""),
                 const SizedBox(height: 12),
 
                 ...List.from(reflection['options'] ?? []).map((opt) {
-                  final selected = selectedReflectionOption == opt.toString();
+                  final selected =
+                      selectedReflectionOption == opt.toString();
 
                   return Card(
                     elevation: 0,
@@ -181,17 +232,12 @@ class _QuizPageState extends State<QuizPage> {
                       ),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    color: selected ? cs.primaryContainer.withOpacity(0.05) : null,
                     child: ListTile(
-                      title: Text(
-                        opt.toString(),
-                        style: theme.textTheme.bodyLarge?.copyWith(
-                          fontWeight: selected ? FontWeight.bold : FontWeight.normal,
-                        ),
-                      ),
+                      title: Text(opt.toString()),
                       leading: Icon(
-                        selected ? Icons.radio_button_checked : Icons.radio_button_off,
-                        color: selected ? cs.primary : cs.onSurfaceVariant,
+                        selected
+                            ? Icons.radio_button_checked
+                            : Icons.radio_button_off,
                       ),
                       onTap: () {
                         setState(() {
@@ -231,6 +277,8 @@ class _QuizPageState extends State<QuizPage> {
         (reflection == null || selectedReflectionOption != null) &&
         !isSubmitting;
   }
+
+  // ================= SUBMIT =================
 
   Future<void> _submitBoth() async {
     setState(() => isSubmitting = true);

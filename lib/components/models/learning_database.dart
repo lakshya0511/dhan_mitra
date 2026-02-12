@@ -273,4 +273,37 @@ class LearningService {
     return lesson['isMandatory'] == true &&
         lesson['completedAt'] != null;
   }
+
+  // ================= 🆕 GET QUIZ PROGRESS (ADDED) =================
+  // Used by QuizPage to resume partially completed lessons
+  // DOES NOT modify any existing logic or structure
+
+  Future<Map<String, dynamic>> getLessonQuizProgress(String lessonId) async {
+    final snap = await _getUserSnap();
+    if (!snap.exists) return {
+      'answers': {},
+      'reflections': {},
+    };
+
+    final data = snap.data();
+    final lesson = data?['lessonProgress']?[lessonId];
+
+    if (lesson == null) {
+      return {
+        'answers': {},
+        'reflections': {},
+      };
+    }
+
+    final answers =
+    Map<String, dynamic>.from(lesson['quiz']?['answers'] ?? {});
+
+    final reflections =
+    Map<String, dynamic>.from(lesson['quiz']?['reflections'] ?? {});
+
+    return {
+      'answers': answers,
+      'reflections': reflections,
+    };
+  }
 }
