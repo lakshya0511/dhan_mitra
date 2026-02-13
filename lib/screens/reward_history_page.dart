@@ -1,6 +1,7 @@
+import 'package:dhan_mitra/components/models/user_database.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../components/models/user_database.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class RewardHistoryPage extends StatelessWidget {
   const RewardHistoryPage({super.key});
@@ -22,19 +23,26 @@ class RewardHistoryPage extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           }
 
-          final user = snap.data!.data() as Map<String, dynamic>;
-          final redeemed = List<String>.from(user['wallet']['redeemedOffers'] ?? []);
+          final user =
+          snap.data!.data() as Map<String, dynamic>;
+          final redeemed = List<String>.from(
+              user['wallet']['redeemedOffers'] ?? []);
 
           if (redeemed.isEmpty) {
             return Center(
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment:
+                MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.redeem_outlined, size: 64, color: cs.outlineVariant),
+                  Icon(Icons.redeem_outlined,
+                      size: 64,
+                      color: cs.outlineVariant),
                   const SizedBox(height: 16),
                   Text(
                     "No rewards claimed yet",
-                    style: theme.textTheme.bodyLarge?.copyWith(color: cs.onSurfaceVariant),
+                    style: theme.textTheme.bodyLarge
+                        ?.copyWith(
+                        color: cs.onSurfaceVariant),
                   ),
                 ],
               ),
@@ -42,73 +50,144 @@ class RewardHistoryPage extends StatelessWidget {
           }
 
           return ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            padding: const EdgeInsets.symmetric(
+                horizontal: 20, vertical: 16),
             itemCount: redeemed.length,
             itemBuilder: (context, index) {
               final rewardId = redeemed[index];
 
               return FutureBuilder<DocumentSnapshot>(
-                future: FirebaseFirestore.instance.collection('rewards').doc(rewardId).get(),
+                future: FirebaseFirestore.instance
+                    .collection('rewards')
+                    .doc(rewardId)
+                    .get(),
                 builder: (context, rewardSnap) {
-                  // Using a shimmer-like placeholder while loading
                   if (!rewardSnap.hasData) {
                     return Container(
                       height: 80,
-                      margin: const EdgeInsets.only(bottom: 12),
+                      margin: const EdgeInsets.only(
+                          bottom: 12),
                       decoration: BoxDecoration(
-                        color: cs.surfaceVariant.withOpacity(0.3),
-                        borderRadius: BorderRadius.circular(16),
+                        color: cs.surfaceVariant
+                            .withOpacity(0.3),
+                        borderRadius:
+                        BorderRadius.circular(
+                            16),
                       ),
                     );
                   }
 
-                  final r = rewardSnap.data!.data() as Map<String, dynamic>?;
-                  if (r == null) return const SizedBox();
+                  final r = rewardSnap.data!.data()
+                  as Map<String, dynamic>?;
+
+                  if (r == null)
+                    return const SizedBox();
 
                   return Container(
-                    margin: const EdgeInsets.only(bottom: 12),
+                    margin:
+                    const EdgeInsets.only(
+                        bottom: 12),
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: cs.outlineVariant),
+                      borderRadius:
+                      BorderRadius.circular(
+                          16),
+                      border: Border.all(
+                          color:
+                          cs.outlineVariant),
                       color: cs.surface,
                     ),
                     child: ListTile(
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      contentPadding:
+                      const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8),
                       leading: Container(
-                        padding: const EdgeInsets.all(10),
+                        padding:
+                        const EdgeInsets.all(
+                            10),
                         decoration: BoxDecoration(
-                          color: Colors.orange.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(12),
+                          color: Colors.orange
+                              .withOpacity(0.1),
+                          borderRadius:
+                          BorderRadius
+                              .circular(
+                              12),
                         ),
-                        child: const Icon(Icons.stars_rounded, color: Colors.orange),
+                        child: const Icon(
+                          Icons.stars_rounded,
+                          color: Colors.orange,
+                        ),
                       ),
                       title: Text(
-                        r['title'] ?? "Reward",
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
+                        r['title'] ??
+                            "Reward",
+                        style: theme
+                            .textTheme
+                            .titleMedium
+                            ?.copyWith(
+                          fontWeight:
+                          FontWeight.bold,
                         ),
                       ),
                       subtitle: Text(
                         "Redeemed for ${r['costPoints']} points",
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: cs.onSurfaceVariant,
+                        style: theme
+                            .textTheme
+                            .bodySmall
+                            ?.copyWith(
+                          color:
+                          cs.onSurfaceVariant,
                         ),
                       ),
+
+                      // ✅ Coin Instead of ₹
                       trailing: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.end,
+                        mainAxisAlignment:
+                        MainAxisAlignment
+                            .center,
+                        crossAxisAlignment:
+                        CrossAxisAlignment
+                            .end,
                         children: [
-                          Text(
-                            "₹${(r['paisaReward'] / 100).toStringAsFixed(0)}",
-                            style: theme.textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.green,
-                            ),
+                          Row(
+                            mainAxisSize:
+                            MainAxisSize
+                                .min,
+                            children: [
+                              SvgPicture.asset(
+                                'assets/icons/gold_coin.svg',
+                                height: 18,
+                                width: 18,
+                              ),
+                              const SizedBox(
+                                  width: 6),
+                              Text(
+                                (r['paisaReward'] /
+                                    100)
+                                    .toStringAsFixed(
+                                    0),
+                                style: theme
+                                    .textTheme
+                                    .titleMedium
+                                    ?.copyWith(
+                                  fontWeight:
+                                  FontWeight
+                                      .bold,
+                                  color:
+                                  Colors
+                                      .green,
+                                ),
+                              ),
+                            ],
                           ),
                           Text(
                             "Earned",
-                            style: theme.textTheme.labelSmall?.copyWith(
-                              color: cs.outline,
+                            style: theme
+                                .textTheme
+                                .labelSmall
+                                ?.copyWith(
+                              color:
+                              cs.outline,
                             ),
                           ),
                         ],

@@ -44,7 +44,7 @@ class AboutUsPage extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "Money Mitra",
+                        "धन Mitra",
                         style: theme.textTheme.headlineMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: colorScheme.primary,
