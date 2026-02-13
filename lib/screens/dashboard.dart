@@ -1,3 +1,5 @@
+import 'package:dhan_mitra/screens/mutual_funds/mutual_fund_home.dart';
+import 'package:dhan_mitra/screens/practice_dashboard.dart';
 import 'package:dhan_mitra/screens/rewards_page.dart';
 import 'package:dhan_mitra/screens/virtual_trading/portfolio_page.dart' show PortfolioPage;
 import 'package:dhan_mitra/screens/virtual_trading/trading_home.dart';
@@ -47,19 +49,6 @@ class _DashboardPageState extends State<DashboardPage> {
           ),
         ),
         title: const Text("धन Mitra"),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.wallet_giftcard),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const RewardsPage(),
-                ),
-              );
-            },
-          ),
-        ],
       ),
 
       body: _UserDashboardSection(uid: uid),
@@ -73,7 +62,7 @@ class _DashboardPageState extends State<DashboardPage> {
           NavigationDestination(
               icon: Icon(Icons.school), label: "Lessons"),
           NavigationDestination(
-              icon: Icon(Icons.trending_up), label: "Trading"),
+              icon: Icon(Icons.currency_rupee), label: "Practice Paisa"),
           NavigationDestination(
               icon: Icon(Icons.person), label: "Profile"),
         ],
@@ -89,7 +78,7 @@ class _DashboardPageState extends State<DashboardPage> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (_) => const TradingHomePage(),
+                builder: (_) => const PracticeDashboardPage(),
               ),
             );
           }
@@ -274,10 +263,10 @@ class _UserDashboardSection extends StatelessWidget {
                   const SizedBox(width: 12),
                   Expanded(
                     child: _ActionFlashCard(
-                      icon: Icons.trending_up,
-                      title: "Portfolio",
+                      icon: Icons.currency_rupee,
+                      title: "Practice Paisa",
                       subtitle: tradingUnlocked
-                          ? "Practice Paisa Transition"
+                          ? "Apply your paisa coins in the virtual market"
                           : "Complete mandatory lessons",
                       isPrimary: true,
                       onTap: () {
@@ -285,7 +274,7 @@ class _UserDashboardSection extends StatelessWidget {
                           context,
                           MaterialPageRoute(
                             builder: (_) => tradingUnlocked
-                                ? const PortfolioPage()
+                                ? const PracticeDashboardPage()
                                 : const MandatoryStatusPage(),
                           ),
                         );

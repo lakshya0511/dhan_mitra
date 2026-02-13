@@ -98,15 +98,6 @@ class _TradingHomePageState extends State<TradingHomePage> {
         return Scaffold(
           resizeToAvoidBottomInset: false,
           appBar: AppBar(
-            automaticallyImplyLeading: false,
-            leading: Padding(
-              padding: const EdgeInsets.only(left: 12),
-              child: Image.asset(
-                "assets/logo_without_tagline.png",
-                height: 58,
-                fit: BoxFit.contain,
-              ),
-            ),
             title: const Text('Virtual Market'),
             actions: [
               IconButton(
@@ -340,51 +331,6 @@ class _TradingHomePageState extends State<TradingHomePage> {
                 ),
               ),
             ],
-          ),
-
-          bottomNavigationBar: NavigationBar(
-            selectedIndex: 2,
-            destinations: const [
-              NavigationDestination(
-                  icon: Icon(Icons.home),
-                  label: "Home"),
-              NavigationDestination(
-                  icon: Icon(Icons.school),
-                  label: "Lessons"),
-              NavigationDestination(
-                  icon: Icon(Icons.trending_up),
-                  label: "Trading"),
-              NavigationDestination(
-                  icon: Icon(Icons.person),
-                  label: "Profile"),
-            ],
-            onDestinationSelected: (index) {
-              if (index == 1) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) =>
-                    const FinanceSectionsPage(),
-                  ),
-                );
-              } else if (index == 0) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) =>
-                    const DashboardPage(),
-                  ),
-                );
-              } else if (index == 3) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) =>
-                    const ProfilePage(),
-                  ),
-                );
-              }
-            },
           ),
         );
       },

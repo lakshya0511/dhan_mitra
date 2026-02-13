@@ -17,29 +17,30 @@ class UserService {
     required String gender,
   }) async {
     await users.doc(uid).set({
-      // Identity
+
+      // ================= IDENTITY =================
       'name': name,
       'email': email,
       'phone': phone,
       'city': city,
-      'gender':gender,
+      'gender': gender,
       'photoUrl': null,
 
-      // User Type
+      // ================= USER TYPE =================
       'userType': 'professional',
 
-      // Role & Status
+      // ================= ROLE =================
       'role': 'user',
       'status': 'active',
 
-      // Onboarding
+      // ================= ONBOARDING =================
       'onboarding': {
         'completed': false,
         'step': 1,
         'profileStrength': 30,
       },
 
-      // Wallet
+      // ================= WALLET =================
       'wallet': {
         'balance': 0,
         'points': 0,
@@ -47,53 +48,84 @@ class UserService {
         'redeemedOffers': [],
       },
 
-      // Trading
+      // ================= STOCK TRADING =================
       'trading': {
         'unlocked': false,
         'unlockedAt': null,
       },
 
-      // Portfolio
       'portfolio': {},
 
-      // Compliance
+      // ================= MUTUAL FUNDS =================
+
+      'mfPortfolio': {},
+
+      'mfSipStats': {
+        'activeCount': 0,
+        'totalInvested': 0,
+      },
+
+      'mfSwpStats': {
+        'activeCount': 0,
+        'totalWithdrawn': 0,
+      },
+
+      'mfAnalytics': {
+        'totalInvested': 0,
+        'totalCurrentValue': 0,
+        'totalGain': 0,
+        'totalGainPercent': 0,
+      },
+
+      // ================= CONSENTS =================
       'consents': {
         'termsAccepted': true,
         'privacyAccepted': true,
         'acceptedAt': FieldValue.serverTimestamp(),
       },
 
-      // Metadata
+      // ================= META =================
       'createdAt': FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
       'lastLoginAt': FieldValue.serverTimestamp(),
+
     }, SetOptions(merge: true));
   }
-
 
   // ================= STREAMS =================
 
   Stream<DocumentSnapshot> userStream() {
     return users.doc(uid).snapshots();
   }
+
   Stream<double> walletBalanceStream() {
     return users.doc(uid).snapshots().map((doc) {
       if (!doc.exists) return 0.0;
 
-      return ((doc['wallet']?['balance'] ?? 0) as num).toDouble();
+      final data = doc.data() as Map<String, dynamic>;
+      final wallet = data['wallet'] as Map<String, dynamic>?;
+
+      return (wallet?['balance'] ?? 0).toDouble();
     });
   }
+
   Stream<int> pointsStream() {
     return users.doc(uid).snapshots().map((doc) {
       if (!doc.exists) return 0;
-      return (doc['wallet']?['points'] ?? 0) as int;
+
+      final data = doc.data() as Map<String, dynamic>;
+      final wallet = data['wallet'] as Map<String, dynamic>?;
+
+      return (wallet?['points'] ?? 0) as int;
     });
   }
 
   Stream<String> roleStream() {
     return users.doc(uid).snapshots().map((doc) {
       if (!doc.exists) return 'user';
-      return (doc['role'] ?? 'user') as String;
+
+      final data = doc.data() as Map<String, dynamic>;
+      return (data['role'] ?? 'user') as String;
     });
   }
 
@@ -105,20 +137,34 @@ class UserService {
     String? referenceId,
   }) async {
     final userRef = users.doc(uid);
-    final txnRef = userRef.collection('wallet_transactions').doc();
+    final txnRef =
+    userRef.collection('wallet_transactions').doc();
 
-    await FirebaseFirestore.instance.runTransaction((transaction) async {
-      final snapshot = await transaction.get(userRef);
-      if (!snapshot.exists) throw Exception("User not found");
+    await FirebaseFirestore.instance
+        .runTransaction((transaction) async {
 
-      final wallet = snapshot['wallet'];
+      final snapshot =
+      await transaction.get(userRef);
+
+      if (!snapshot.exists) {
+        throw Exception("User not found");
+      }
+
+      final data =
+      snapshot.data() as Map<String, dynamic>;
+
+      final wallet =
+      data['wallet'] as Map<String, dynamic>;
+
       if (wallet['locked'] == true) {
         throw Exception("Wallet locked");
       }
 
       transaction.update(userRef, {
-        'wallet.balance': FieldValue.increment(amount),
-        'updatedAt': FieldValue.serverTimestamp(),
+        'wallet.balance':
+        FieldValue.increment(amount),
+        'updatedAt':
+        FieldValue.serverTimestamp(),
       });
 
       transaction.set(txnRef, {
@@ -126,7 +172,8 @@ class UserService {
         'amount': amount,
         'reason': reason,
         'referenceId': referenceId,
-        'createdAt': FieldValue.serverTimestamp(),
+        'createdAt':
+        FieldValue.serverTimestamp(),
       });
     });
   }
@@ -137,22 +184,38 @@ class UserService {
     String? referenceId,
   }) async {
     final userRef = users.doc(uid);
-    final txnRef = userRef.collection('wallet_transactions').doc();
+    final txnRef =
+    userRef.collection('wallet_transactions').doc();
 
-    await FirebaseFirestore.instance.runTransaction((transaction) async {
-      final snapshot = await transaction.get(userRef);
-      if (!snapshot.exists) throw Exception("User not found");
+    await FirebaseFirestore.instance
+        .runTransaction((transaction) async {
 
-      final wallet = snapshot['wallet'];
-      final int balance = wallet['balance'] ?? 0;
+      final snapshot =
+      await transaction.get(userRef);
 
-      if (wallet['locked'] == true || balance < amount) {
+      if (!snapshot.exists) {
+        throw Exception("User not found");
+      }
+
+      final data =
+      snapshot.data() as Map<String, dynamic>;
+
+      final wallet =
+      data['wallet'] as Map<String, dynamic>;
+
+      final int balance =
+          wallet['balance'] ?? 0;
+
+      if (wallet['locked'] == true ||
+          balance < amount) {
         throw Exception("Insufficient balance");
       }
 
       transaction.update(userRef, {
-        'wallet.balance': FieldValue.increment(-amount),
-        'updatedAt': FieldValue.serverTimestamp(),
+        'wallet.balance':
+        FieldValue.increment(-amount),
+        'updatedAt':
+        FieldValue.serverTimestamp(),
       });
 
       transaction.set(txnRef, {
@@ -160,7 +223,8 @@ class UserService {
         'amount': amount,
         'reason': reason,
         'referenceId': referenceId,
-        'createdAt': FieldValue.serverTimestamp(),
+        'createdAt':
+        FieldValue.serverTimestamp(),
       });
     });
   }
@@ -173,7 +237,7 @@ class UserService {
         .snapshots();
   }
 
-  // ================= REWARDS (NEW) =================
+  // ================= REWARDS =================
 
   Future<void> claimReward({
     required String rewardId,
@@ -182,14 +246,27 @@ class UserService {
   }) async {
     final userRef = users.doc(uid);
 
-    await FirebaseFirestore.instance.runTransaction((tx) async {
-      final snap = await tx.get(userRef);
-      if (!snap.exists) throw Exception("User not found");
+    await FirebaseFirestore.instance
+        .runTransaction((tx) async {
 
-      final wallet = Map<String, dynamic>.from(snap['wallet']);
-      final int points = wallet['points'] ?? 0;
-      final List redeemed =
-      List<String>.from(wallet['redeemedOffers'] ?? []);
+      final snap = await tx.get(userRef);
+
+      if (!snap.exists) {
+        throw Exception("User not found");
+      }
+
+      final data =
+      snap.data() as Map<String, dynamic>;
+
+      final wallet =
+      Map<String, dynamic>.from(data['wallet']);
+
+      final int points =
+          wallet['points'] ?? 0;
+
+      final List<String> redeemed =
+      List<String>.from(
+          wallet['redeemedOffers'] ?? []);
 
       if (redeemed.contains(rewardId)) {
         throw Exception("Reward already claimed");
@@ -202,10 +279,14 @@ class UserService {
       redeemed.add(rewardId);
 
       tx.update(userRef, {
-        'wallet.points': FieldValue.increment(-costPoints),
-        'wallet.balance': FieldValue.increment(paisaReward),
-        'wallet.redeemedOffers': redeemed,
-        'updatedAt': FieldValue.serverTimestamp(),
+        'wallet.points':
+        FieldValue.increment(-costPoints),
+        'wallet.balance':
+        FieldValue.increment(paisaReward),
+        'wallet.redeemedOffers':
+        redeemed,
+        'updatedAt':
+        FieldValue.serverTimestamp(),
       });
     });
   }

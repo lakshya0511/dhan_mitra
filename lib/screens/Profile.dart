@@ -1,3 +1,4 @@
+import 'package:dhan_mitra/screens/practice_dashboard.dart';
 import 'package:dhan_mitra/screens/virtual_trading/trading_home.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -293,7 +294,7 @@ class ProfilePage extends StatelessWidget {
           NavigationDestination(
               icon: Icon(Icons.school), label: "Lessons"),
           NavigationDestination(
-              icon: Icon(Icons.trending_up), label: "Trading"),
+              icon:  Icon(Icons.currency_rupee), label: "Practice Paisa"),
           NavigationDestination(
               icon: Icon(Icons.person), label: "Profile"),
         ],
@@ -309,7 +310,7 @@ class ProfilePage extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (_) => const TradingHomePage(),
+                builder: (_) => const PracticeDashboardPage(),
               ),
             );
           } else if (index == 0) {

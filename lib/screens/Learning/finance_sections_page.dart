@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dhan_mitra/screens/practice_dashboard.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../Profile.dart';
@@ -136,7 +137,7 @@ class FinanceSectionsPage extends StatelessWidget {
           NavigationDestination(
               icon: Icon(Icons.school), label: "Lessons"),
           NavigationDestination(
-              icon: Icon(Icons.trending_up), label: "Trading"),
+              icon:  Icon(Icons.currency_rupee), label: "Practice Paisa"),
           NavigationDestination(
               icon: Icon(Icons.person), label: "Profile"),
         ],
@@ -152,7 +153,7 @@ class FinanceSectionsPage extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (_) => const TradingHomePage(),
+                builder: (_) => const PracticeDashboardPage(),
               ),
             );
           }

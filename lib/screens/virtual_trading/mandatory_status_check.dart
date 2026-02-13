@@ -1,3 +1,4 @@
+import 'package:dhan_mitra/screens/practice_dashboard.dart';
 import 'package:dhan_mitra/screens/virtual_trading/trading_home.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -34,7 +35,7 @@ class _MandatoryStatusPageState extends State<MandatoryStatusPage> {
       if (!mounted) return;
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const TradingHomePage()),
+        MaterialPageRoute(builder: (_) => const PracticeDashboardPage()),
       );
       return;
     }
@@ -57,7 +58,7 @@ class _MandatoryStatusPageState extends State<MandatoryStatusPage> {
 
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (_) => const TradingHomePage()),
+      MaterialPageRoute(builder: (_) => const PracticeDashboardPage()),
     );
   }
 
