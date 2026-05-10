@@ -1,4 +1,4 @@
-# 💰 Money Mitra
+# 💰 Dhan Mitra
 
 Money Mitra is a **personal finance education and assistance app** built with **Flutter + Firebase**, designed to help users understand money, manage finances responsibly, and make better financial decisions. The app focuses on **learning-first finance**, combining structured lessons, progress tracking, and secure Firebase-backed infrastructure.
 
